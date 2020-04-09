@@ -60,6 +60,9 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
                 const prop = __classPrivateFieldGet(this, _map)[key];
                 next[prop] = val;
             }
+            if (__classPrivateFieldGet(this, _styleProp) !== undefined) {
+                Object.assign(next.style, __classPrivateFieldGet(this, _styleProp));
+            }
         }, 16));
     }
     static get is() { return 'proxy-props'; }

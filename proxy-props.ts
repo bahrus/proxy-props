@@ -23,16 +23,19 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
         super();
         this.#debouncer = debounce(() => {
             if(!this.#conn || !this.#map) return;
-            let next = this.nextElementSibling;
+            let next = this.nextElementSibling as HTMLElement;
             if(next === null || next.localName !== this.#tag){
                 next =document.createElement(this.#tag);
-                next = this.insertAdjacentElement('afterend', next);
+                next = this.insertAdjacentElement('afterend', next) as HTMLElement;
             }
             for(const key in this.#map){
                 const val = (<any>this)[key];
                 if(val === undefined) continue;
                 const prop = (<any>this.#map)[key];
                 (<any>next)[prop] = val;
+            }
+            if(this.#styleProp !== undefined){
+                Object.assign(next!.style, this.#styleProp);
             }
         }, 16);
     }
