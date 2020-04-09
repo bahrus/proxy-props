@@ -11,7 +11,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     privateMap.set(receiver, value);
     return value;
 };
-var _debouncer, _prop1, _prop2, _prop3, _prop4, _prop5, _prop6, _prop7, _prop8, _prop9, _styleProp, _tag, _map, _conn;
+var _debouncer, _display, _prop1, _prop2, _prop3, _prop4, _prop5, _prop6, _prop7, _prop8, _prop9, _styleProp, _tag, _map, _conn;
 import { define } from 'trans-render/define.js';
 import { hydrate, disabled } from 'trans-render/hydrate.js';
 import { XtallatX } from 'xtal-element/xtal-latx.js';
@@ -28,10 +28,12 @@ export const prop9 = 'prop9';
 export const style_prop = 'style-prop';
 export const tag = 'tag';
 export const map = 'map';
+export const display = 'display';
 export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
     constructor() {
         super();
         _debouncer.set(this, void 0);
+        _display.set(this, 'none');
         _prop1.set(this, void 0);
         _prop2.set(this, void 0);
         _prop3.set(this, void 0);
@@ -48,10 +50,16 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
         __classPrivateFieldSet(this, _debouncer, debounce(() => {
             if (!__classPrivateFieldGet(this, _conn) || !__classPrivateFieldGet(this, _map))
                 return;
-            let next = this.nextElementSibling;
+            let next = null;
+            if (__classPrivateFieldGet(this, _display) === 'none') {
+                next = this.nextElementSibling;
+            }
+            else {
+                next = this.firstElementChild;
+            }
             if (next === null || next.localName !== __classPrivateFieldGet(this, _tag)) {
                 next = document.createElement(__classPrivateFieldGet(this, _tag));
-                next = this.insertAdjacentElement('afterend', next);
+                next = this.insertAdjacentElement(__classPrivateFieldGet(this, _display) === 'none' ? 'afterend' : 'beforeend', next);
             }
             for (const key in __classPrivateFieldGet(this, _map)) {
                 const val = this[key];
@@ -67,10 +75,13 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
     }
     static get is() { return 'proxy-props'; }
     static get observedAttributes() {
-        return [prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, disabled, style_prop];
+        return [prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, disabled, style_prop, display];
     }
     attributeChangedCallback(n, ov, nv) {
         switch (n) {
+            case display:
+                __classPrivateFieldSet(this, _display, nv);
+                break;
             case prop1:
             case prop2:
             case prop3:
@@ -93,6 +104,12 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
                 __classPrivateFieldGet(this, _debouncer).call(this);
                 break;
         }
+    }
+    get display() {
+        return __classPrivateFieldGet(this, _display);
+    }
+    set display(val) {
+        this.setAttribute(display, val);
     }
     get prop1() {
         return __classPrivateFieldGet(this, _prop1);
@@ -178,13 +195,13 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
         __classPrivateFieldGet(this, _debouncer).call(this);
     }
     connectedCallback() {
-        this.style.display = 'none';
-        this.propUp([disabled, prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, style_prop]);
+        this.propUp([disabled, prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, style_prop, display]);
+        this.style.display = __classPrivateFieldGet(this, _display);
         __classPrivateFieldSet(this, _conn, true);
         if (__classPrivateFieldGet(this, _tag) === undefined)
             return;
         __classPrivateFieldGet(this, _debouncer).call(this);
     }
 }
-_debouncer = new WeakMap(), _prop1 = new WeakMap(), _prop2 = new WeakMap(), _prop3 = new WeakMap(), _prop4 = new WeakMap(), _prop5 = new WeakMap(), _prop6 = new WeakMap(), _prop7 = new WeakMap(), _prop8 = new WeakMap(), _prop9 = new WeakMap(), _styleProp = new WeakMap(), _tag = new WeakMap(), _map = new WeakMap(), _conn = new WeakMap();
+_debouncer = new WeakMap(), _display = new WeakMap(), _prop1 = new WeakMap(), _prop2 = new WeakMap(), _prop3 = new WeakMap(), _prop4 = new WeakMap(), _prop5 = new WeakMap(), _prop6 = new WeakMap(), _prop7 = new WeakMap(), _prop8 = new WeakMap(), _prop9 = new WeakMap(), _styleProp = new WeakMap(), _tag = new WeakMap(), _map = new WeakMap(), _conn = new WeakMap();
 define(ProxyProps);
