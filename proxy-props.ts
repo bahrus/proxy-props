@@ -8,6 +8,11 @@ export const prop2 = 'prop2';
 export const prop3 = 'prop3';
 export const prop4 = 'prop4';
 export const prop5 = 'prop5';
+export const prop6 = 'prop6';
+export const prop7 = 'prop7';
+export const prop8 = 'prop8';
+export const prop9 = 'prop9';
+
 export const style_prop = 'style-prop';
 export const tag   = 'tag';
 export const map   = 'map';
@@ -33,7 +38,7 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
     }
     static get is(){return 'proxy-props';}
     static get observedAttributes(){
-        return [prop1, prop2, prop3, prop4, prop5, tag, map, disabled, style_prop];
+        return [prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, disabled, style_prop];
     }
     attributeChangedCallback(n: string, ov: string, nv: string){
         switch(n){
@@ -42,6 +47,10 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
             case prop3:
             case prop4:
             case prop5:
+            case prop6:
+            case prop7:
+            case prop8:
+            case prop9:
                 this[n] = JSON.parse(nv);
                 break;
             case style_prop:
@@ -101,6 +110,42 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
         this.#debouncer();
     }
 
+    #prop6: any | undefined;
+    get prop6(){
+        return this.#prop6;
+    }
+    set prop6(val){
+        this.#prop6 = val;
+        this.#debouncer();
+    }
+
+    #prop7: any | undefined;
+    get prop7(){
+        return this.#prop7;
+    }
+    set prop7(val){
+        this.#prop7 = val;
+        this.#debouncer();
+    }
+
+    #prop8: any | undefined;
+    get prop8(){
+        return this.#prop8;
+    }
+    set prop8(val){
+        this.#prop8 = val;
+        this.#debouncer();
+    }
+
+    #prop9: any | undefined;
+    get prop9(){
+        return this.#prop9;
+    }
+    set prop9(val){
+        this.#prop9 = val;
+        this.#debouncer();
+    }
+
     #styleProp: any | undefined;
     get styleProp(){
         return this.#styleProp;
@@ -130,7 +175,7 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
     #conn = false;
     connectedCallback(){
         this.style.display = 'none';
-        this.propUp([disabled, prop1, prop2, prop3, prop4, prop5, tag, map, style_prop]);
+        this.propUp([disabled, prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, style_prop]);
         this.#conn = true;
         if(this.#tag === undefined) return;
         this.#debouncer();
