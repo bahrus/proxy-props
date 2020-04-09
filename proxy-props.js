@@ -47,6 +47,7 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
         _tag.set(this, void 0);
         _map.set(this, void 0);
         _conn.set(this, false);
+        const veriKey = Symbol();
         __classPrivateFieldSet(this, _debouncer, debounce(() => {
             if (!__classPrivateFieldGet(this, _conn) || !__classPrivateFieldGet(this, _map))
                 return;
@@ -58,8 +59,11 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
                 next = this.firstElementChild;
             }
             if (next === null || next.localName !== __classPrivateFieldGet(this, _tag)) {
+                if (next !== null && next[veriKey])
+                    next.remove();
                 next = document.createElement(__classPrivateFieldGet(this, _tag));
-                next = this.insertAdjacentElement(__classPrivateFieldGet(this, _display) === 'none' ? 'afterend' : 'beforeend', next);
+                next = this.insertAdjacentElement(__classPrivateFieldGet(this, _display) === 'none' ? 'afterend' : 'afterbegin', next);
+                next[veriKey] = true;
             }
             for (const key in __classPrivateFieldGet(this, _map)) {
                 const val = this[key];

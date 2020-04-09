@@ -22,6 +22,7 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
     #debouncer: any;
     constructor(){
         super();
+        const veriKey = Symbol();
         this.#debouncer = debounce(() => {
             if(!this.#conn || !this.#map) return;
             let next: HTMLElement | null = null;
@@ -31,8 +32,10 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
                 next = this.firstElementChild as HTMLElement;
             }
             if(next === null || next.localName !== this.#tag){
+                if(next !== null && (<any>next)[veriKey]) next.remove();
                 next = document.createElement(this.#tag);
-                next = this.insertAdjacentElement(this.#display === 'none' ? 'afterend' : 'beforeend', next) as HTMLElement;
+                next = this.insertAdjacentElement(this.#display === 'none' ? 'afterend' : 'afterbegin', next) as HTMLElement;
+                (<any>next)[veriKey] = true;
             }
             for(const key in this.#map){
                 const val = (<any>this)[key];
