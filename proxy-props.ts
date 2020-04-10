@@ -3,20 +3,35 @@ import {hydrate, disabled} from 'trans-render/hydrate.js';
 import {XtallatX} from 'xtal-element/xtal-latx.js';
 import {debounce} from 'xtal-element/debounce.js';
 
-export const prop1 = 'prop1';
-export const prop2 = 'prop2';
-export const prop3 = 'prop3';
-export const prop4 = 'prop4';
-export const prop5 = 'prop5';
-export const prop6 = 'prop6';
-export const prop7 = 'prop7';
-export const prop8 = 'prop8';
-export const prop9 = 'prop9';
-
-export const style_prop = 'style-prop';
+export const insert = 'insert';
 export const tag   = 'tag';
-export const map   = 'map';
-export const display = 'display';
+export const location = 'location'
+// export const display = 'display';
+export const proxy = 'proxy';
+export const from1 = 'from1';
+export const from2 = 'from2';
+export const from3 = 'from3';
+export const from4 = 'from4';
+export const from5 = 'from5';
+export const from6 = 'from6';
+export const from7 = 'from7';
+export const from8 = 'from8';
+export const from9 = 'from9';
+export const to1 = 'to1';
+export const to2 = 'to2';
+export const to3 = 'to3';
+export const to4 = 'to4';
+export const to5 = 'to5';
+export const to6 = 'to6';
+export const to7 = 'to7';
+export const to8 = 'to8';
+export const to9 = 'to9';
+export const style_prop = 'style-prop';
+
+type InsertPosition = "beforebegin" | "afterbegin" | "beforeend" | "afterend";
+
+const mostProps = [disabled, insert, tag, location, proxy, from1, from2, from3, from4, from5, from6, from7, from8, from9, to1, to2, to3, to4, to5, to6, to7, to8, to9];
+
 export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
 
     #debouncer: any;
@@ -24,23 +39,34 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
         super();
         const veriKey = Symbol();
         this.#debouncer = debounce(() => {
-            if(!this.#conn || !this.#map) return;
+            if(!this.#conn) return;
             let next: HTMLElement | null = null;
-            if(this.#display === 'none'){
-                next = this.nextElementSibling as HTMLElement;
-            }else{
-                next = this.firstElementChild as HTMLElement;
+            switch(this.#location){
+                case "afterbegin":
+                    next = this.firstElementChild;
+                    break;
+                case "afterend":
+                    next = this.nextElementSibling;
+                    break;
+                case "beforebegin":
+                    next = this.previousElementSibling;
+                    break;
+                case "beforeend":
+                    next = this.lastElementChild;
+                    break;
             }
             if(next === null || next.localName !== this.#tag){
                 if(next !== null && (<any>next)[veriKey]) next.remove();
                 next = document.createElement(this.#tag);
-                next = this.insertAdjacentElement(this.#display === 'none' ? 'afterend' : 'afterbegin', next) as HTMLElement;
+                next = this.insertAdjacentElement(this.#location, next) as HTMLElement;
                 (<any>next)[veriKey] = true;
             }
-            for(const key in this.#map){
-                const val = (<any>this)[key];
+            if(!this.#proxy) return;
+            for(let i = 1; i < 10; i++){
+                const val = (<any>this)['from' + i];
                 if(val === undefined) continue;
-                const prop = (<any>this.#map)[key];
+                const prop = (<any>this)['to' + i];
+                if(prop === undefined) continue;
                 (<any>next)[prop] = val;
             }
             if(this.#styleProp !== undefined){
@@ -50,123 +76,224 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
     }
     static get is(){return 'proxy-props';}
     static get observedAttributes(){
-        return [prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, disabled, style_prop, display];
+        return mostProps.concat(style_prop);
     }
+
+    #conn = false;
+    connectedCallback(){
+        this.propUp(mostProps.concat(['styeProp']));
+        switch(this.location){
+            case 'afterend':
+            case 'beforebegin':
+                this.style.display = 'none';
+                break;
+        }
+        this.#conn = true;
+        if(this.#tag === undefined) return;
+        this.#debouncer();
+    }
+
     attributeChangedCallback(n: string, ov: string, nv: string){
         switch(n){
-            case display:
-                this.#display = nv;
+            case from1:
+            case from2:
+            case from3:
+            case from4:
+            case from5:
+            case from6:
+            case from7:
+            case from8:
+            case from9:
+                (<any>this)[n] = JSON.parse(nv);
                 break;
-            case prop1:
-            case prop2:
-            case prop3:
-            case prop4:
-            case prop5:
-            case prop6:
-            case prop7:
-            case prop8:
-            case prop9:
-                this[n] = JSON.parse(nv);
+            case to1:
+            case to2:
+            case to3:
+            case to4:
+            case to5:
+            case to6:
+            case to7:
+            case to8:
+            case to9:
+            case tag:
+            case location:
+                (<any>this)[n] = nv;
                 break;
             case style_prop:
                 this.styleProp = JSON.parse(nv);
                 break;
-            case map:
-                this.map = JSON.parse(nv);
-                break;
-            case tag:
-                this.#tag = nv;
-                this.#debouncer();
+            case insert:
+            case proxy:
+                this.#proxy = nv !== 'null';
                 break;
         }
     }
-    #display: string = 'none';
-    get display(){
-        return this.#display;
+
+
+    #from1: any | undefined;
+    get from1(){
+        return this.#from1;
     }
-    set display(val){
-        this.setAttribute(display, val);
-    }
-    #prop1: any | undefined;
-    get prop1(){
-        return this.#prop1;
-    }
-    set prop1(val){
-        this.#prop1 = val;
+    set from1(val){
+        this.#from1 = val;
         this.#debouncer();
     }
 
-    #prop2: any | undefined;
-    get prop2(){
-        return this.#prop2;
+    #from2: any | undefined;
+    get from2(){
+        return this.#from2;
     }
-    set prop2(val){
-        this.#prop2 = val;
+    set from2(val){
+        this.#from2 = val;
         this.#debouncer();
     }
 
-    #prop3: any | undefined;
-    get prop3(){
-        return this.#prop3;
+    #from3: any | undefined;
+    get from3(){
+        return this.#from3;
     }
-    set prop3(val){
-        this.#prop3 = val;
+    set from3(val){
+        this.#from3 = val;
         this.#debouncer();
     }
 
-    #prop4: any | undefined;
-    get prop4(){
-        return this.#prop4;
+    #from4: any | undefined;
+    get from4(){
+        return this.#from4;
     }
-    set prop4(val){
-        this.#prop4 = val;
+    set from4(val){
+        this.#from4 = val;
         this.#debouncer();
     }
 
-    #prop5: any | undefined;
-    get prop5(){
-        return this.#prop5;
+    #from5: any | undefined;
+    get from5(){
+        return this.#from5;
     }
-    set prop5(val){
-        this.#prop5 = val;
+    set from5(val){
+        this.#from5 = val;
         this.#debouncer();
     }
 
-    #prop6: any | undefined;
-    get prop6(){
-        return this.#prop6;
+    #from6: any | undefined;
+    get from6(){
+        return this.#from6;
     }
-    set prop6(val){
-        this.#prop6 = val;
+    set from6(val){
+        this.#from6 = val;
         this.#debouncer();
     }
 
-    #prop7: any | undefined;
-    get prop7(){
-        return this.#prop7;
+    #from7: any | undefined;
+    get from7(){
+        return this.#from7;
     }
-    set prop7(val){
-        this.#prop7 = val;
+    set from7(val){
+        this.#from7 = val;
         this.#debouncer();
     }
 
-    #prop8: any | undefined;
-    get prop8(){
-        return this.#prop8;
+    #from8: any | undefined;
+    get from8(){
+        return this.#from8;
     }
-    set prop8(val){
-        this.#prop8 = val;
+    set from8(val){
+        this.#from8 = val;
         this.#debouncer();
     }
 
-    #prop9: any | undefined;
-    get prop9(){
-        return this.#prop9;
+    #from9: any | undefined;
+    get from9(){
+        return this.#from9;
     }
-    set prop9(val){
-        this.#prop9 = val;
+    set from9(val){
+        this.#from9 = val;
         this.#debouncer();
     }
+
+
+    #to1: any | undefined;
+    get to1(){
+        return this.#to1;
+    }
+    set to1(val){
+        this.#to1 = val;
+        this.#debouncer();
+    }
+
+    #to2: any | undefined;
+    get to2(){
+        return this.#to2;
+    }
+    set to2(val){
+        this.#to2 = val;
+        this.#debouncer();
+    }
+
+    #to3: any | undefined;
+    get to3(){
+        return this.#to3;
+    }
+    set to3(val){
+        this.#to3 = val;
+        this.#debouncer();
+    }
+
+    #to4: any | undefined;
+    get to4(){
+        return this.#to4;
+    }
+    set to4(val){
+        this.#to4 = val;
+        this.#debouncer();
+    }
+
+    #to5: any | undefined;
+    get to5(){
+        return this.#to5;
+    }
+    set to5(val){
+        this.#to5 = val;
+        this.#debouncer();
+    }
+
+    #to6: any | undefined;
+    get to6(){
+        return this.#to6;
+    }
+    set to6(val){
+        this.#to6 = val;
+        this.#debouncer();
+    }
+
+    #to7: any | undefined;
+    get to7(){
+        return this.#to7;
+    }
+    set to7(val){
+        this.#to7 = val;
+        this.#debouncer();
+    }
+
+    #to8: any | undefined;
+    get to8(){
+        return this.#to8;
+    }
+    set to8(val){
+        this.#to8 = val;
+        this.#debouncer();
+    }
+
+    #to9: any | undefined;
+    get to9(){
+        return this.#to9;
+    }
+    set to9(val){
+        this.#to9 = val;
+        this.#debouncer();
+    }
+
+
 
     #styleProp: any | undefined;
     get styleProp(){
@@ -182,26 +309,29 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
         return this.#tag;
     }
     set tag(val){
-        this.setAttribute(tag, val);
-    }
-
-    #map!: {[key: string]: any};
-    get map(){
-        return this.#map
-    }
-    set map(val){
-        this.#map = val;
+        this.#tag = val;
         this.#debouncer();
     }
 
-    #conn = false;
-    connectedCallback(){
-        this.propUp([disabled, prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, tag, map, style_prop, display]);
-        this.style.display = this.#display;
-        this.#conn = true;
-        if(this.#tag === undefined) return;
+    #location : InsertPosition = 'afterend'
+    get location(){
+        return this.#location;
+    }
+    set location(val){
+        this.#location = val;
         this.#debouncer();
     }
+
+    #proxy = false;
+    get proxy(){
+        return this.#proxy;
+    }
+    set proxy(val){
+        this.#proxy = val;
+        this.#debouncer();
+    }
+
+
 
 }
 define(ProxyProps);
