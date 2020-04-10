@@ -1,17 +1,3 @@
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to set private field on non-instance");
-    }
-    privateMap.set(receiver, value);
-    return value;
-};
-var _debouncer, _conn, _from1, _from2, _from3, _from4, _from5, _from6, _from7, _from8, _from9, _to1, _to2, _to3, _to4, _to5, _to6, _to7, _to8, _to9, _styleProp, _tag, _location, _proxy;
 import { define } from 'trans-render/define.js';
 import { hydrate, disabled } from 'trans-render/hydrate.js';
 import { XtallatX } from 'xtal-element/xtal-latx.js';
@@ -44,76 +30,60 @@ const mostProps = [disabled, insert, tag, location, proxy, from1, from2, from3, 
 export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
     constructor() {
         super();
-        _debouncer.set(this, void 0);
-        _conn.set(this, false);
-        _from1.set(this, void 0);
-        _from2.set(this, void 0);
-        _from3.set(this, void 0);
-        _from4.set(this, void 0);
-        _from5.set(this, void 0);
-        _from6.set(this, void 0);
-        _from7.set(this, void 0);
-        _from8.set(this, void 0);
-        _from9.set(this, void 0);
-        _to1.set(this, void 0);
-        _to2.set(this, void 0);
-        _to3.set(this, void 0);
-        _to4.set(this, void 0);
-        _to5.set(this, void 0);
-        _to6.set(this, void 0);
-        _to7.set(this, void 0);
-        _to8.set(this, void 0);
-        _to9.set(this, void 0);
-        _styleProp.set(this, void 0);
-        _tag.set(this, void 0);
-        _location.set(this, 'afterend');
-        _proxy.set(this, false);
+        this.#conn = false;
+        this.#location = 'afterend';
+        this.#proxy = false;
+        this.#insert = false;
         const veriKey = Symbol();
-        __classPrivateFieldSet(this, _debouncer, debounce(() => {
-            if (!__classPrivateFieldGet(this, _conn))
+        this.#debouncer = debounce(() => {
+            if (!this.#conn)
                 return;
-            let next = null;
-            switch (__classPrivateFieldGet(this, _location)) {
-                case "afterbegin":
-                    next = this.firstElementChild;
-                    break;
-                case "afterend":
-                    next = this.nextElementSibling;
-                    break;
-                case "beforebegin":
-                    next = this.previousElementSibling;
-                    break;
-                case "beforeend":
-                    next = this.lastElementChild;
-                    break;
+            if (this.#insert) {
+                let next = null;
+                switch (this.#location) {
+                    case "afterbegin":
+                        next = this.firstElementChild;
+                        break;
+                    case "afterend":
+                        next = this.nextElementSibling;
+                        break;
+                    case "beforebegin":
+                        next = this.previousElementSibling;
+                        break;
+                    case "beforeend":
+                        next = this.lastElementChild;
+                        break;
+                }
+                if (next === null || next.localName !== this.#tag) {
+                    if (next !== null && next[veriKey])
+                        next.remove();
+                    next = document.createElement(this.#tag);
+                    next = this.insertAdjacentElement(this.#location, next);
+                    next[veriKey] = true;
+                }
+                if (this.#styleProp !== undefined) {
+                    Object.assign(next.style, this.#styleProp);
+                }
+                if (!this.#proxy)
+                    return;
+                for (let i = 1; i < 10; i++) {
+                    const val = this['from' + i];
+                    if (val === undefined)
+                        continue;
+                    const prop = this['to' + i];
+                    if (prop === undefined)
+                        continue;
+                    next[prop] = val;
+                }
             }
-            if (next === null || next.localName !== __classPrivateFieldGet(this, _tag)) {
-                if (next !== null && next[veriKey])
-                    next.remove();
-                next = document.createElement(__classPrivateFieldGet(this, _tag));
-                next = this.insertAdjacentElement(__classPrivateFieldGet(this, _location), next);
-                next[veriKey] = true;
-            }
-            if (!__classPrivateFieldGet(this, _proxy))
-                return;
-            for (let i = 1; i < 10; i++) {
-                const val = this['from' + i];
-                if (val === undefined)
-                    continue;
-                const prop = this['to' + i];
-                if (prop === undefined)
-                    continue;
-                next[prop] = val;
-            }
-            if (__classPrivateFieldGet(this, _styleProp) !== undefined) {
-                Object.assign(next.style, __classPrivateFieldGet(this, _styleProp));
-            }
-        }, 16));
+        }, 16);
     }
+    #debouncer;
     static get is() { return 'proxy-props'; }
     static get observedAttributes() {
         return mostProps.concat(style_prop);
     }
+    #conn;
     connectedCallback() {
         this.propUp(mostProps.concat(['styeProp']));
         switch (this.location) {
@@ -122,10 +92,10 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
                 this.style.display = 'none';
                 break;
         }
-        __classPrivateFieldSet(this, _conn, true);
-        if (__classPrivateFieldGet(this, _tag) === undefined)
+        this.#conn = true;
+        if (this.#tag === undefined)
             return;
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#debouncer();
     }
     attributeChangedCallback(n, ov, nv) {
         switch (n) {
@@ -158,164 +128,193 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)) {
                 break;
             case insert:
             case proxy:
-                __classPrivateFieldSet(this, _proxy, nv !== 'null');
+                this[n] = nv !== null;
                 break;
         }
     }
+    #from1;
     get from1() {
-        return __classPrivateFieldGet(this, _from1);
+        return this.#from1;
     }
     set from1(val) {
-        __classPrivateFieldSet(this, _from1, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from1 = val;
+        this.#debouncer();
     }
+    #from2;
     get from2() {
-        return __classPrivateFieldGet(this, _from2);
+        return this.#from2;
     }
     set from2(val) {
-        __classPrivateFieldSet(this, _from2, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from2 = val;
+        this.#debouncer();
     }
+    #from3;
     get from3() {
-        return __classPrivateFieldGet(this, _from3);
+        return this.#from3;
     }
     set from3(val) {
-        __classPrivateFieldSet(this, _from3, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from3 = val;
+        this.#debouncer();
     }
+    #from4;
     get from4() {
-        return __classPrivateFieldGet(this, _from4);
+        return this.#from4;
     }
     set from4(val) {
-        __classPrivateFieldSet(this, _from4, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from4 = val;
+        this.#debouncer();
     }
+    #from5;
     get from5() {
-        return __classPrivateFieldGet(this, _from5);
+        return this.#from5;
     }
     set from5(val) {
-        __classPrivateFieldSet(this, _from5, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from5 = val;
+        this.#debouncer();
     }
+    #from6;
     get from6() {
-        return __classPrivateFieldGet(this, _from6);
+        return this.#from6;
     }
     set from6(val) {
-        __classPrivateFieldSet(this, _from6, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from6 = val;
+        this.#debouncer();
     }
+    #from7;
     get from7() {
-        return __classPrivateFieldGet(this, _from7);
+        return this.#from7;
     }
     set from7(val) {
-        __classPrivateFieldSet(this, _from7, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from7 = val;
+        this.#debouncer();
     }
+    #from8;
     get from8() {
-        return __classPrivateFieldGet(this, _from8);
+        return this.#from8;
     }
     set from8(val) {
-        __classPrivateFieldSet(this, _from8, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from8 = val;
+        this.#debouncer();
     }
+    #from9;
     get from9() {
-        return __classPrivateFieldGet(this, _from9);
+        return this.#from9;
     }
     set from9(val) {
-        __classPrivateFieldSet(this, _from9, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#from9 = val;
+        this.#debouncer();
     }
+    #to1;
     get to1() {
-        return __classPrivateFieldGet(this, _to1);
+        return this.#to1;
     }
     set to1(val) {
-        __classPrivateFieldSet(this, _to1, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to1 = val;
+        this.#debouncer();
     }
+    #to2;
     get to2() {
-        return __classPrivateFieldGet(this, _to2);
+        return this.#to2;
     }
     set to2(val) {
-        __classPrivateFieldSet(this, _to2, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to2 = val;
+        this.#debouncer();
     }
+    #to3;
     get to3() {
-        return __classPrivateFieldGet(this, _to3);
+        return this.#to3;
     }
     set to3(val) {
-        __classPrivateFieldSet(this, _to3, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to3 = val;
+        this.#debouncer();
     }
+    #to4;
     get to4() {
-        return __classPrivateFieldGet(this, _to4);
+        return this.#to4;
     }
     set to4(val) {
-        __classPrivateFieldSet(this, _to4, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to4 = val;
+        this.#debouncer();
     }
+    #to5;
     get to5() {
-        return __classPrivateFieldGet(this, _to5);
+        return this.#to5;
     }
     set to5(val) {
-        __classPrivateFieldSet(this, _to5, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to5 = val;
+        this.#debouncer();
     }
+    #to6;
     get to6() {
-        return __classPrivateFieldGet(this, _to6);
+        return this.#to6;
     }
     set to6(val) {
-        __classPrivateFieldSet(this, _to6, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to6 = val;
+        this.#debouncer();
     }
+    #to7;
     get to7() {
-        return __classPrivateFieldGet(this, _to7);
+        return this.#to7;
     }
     set to7(val) {
-        __classPrivateFieldSet(this, _to7, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to7 = val;
+        this.#debouncer();
     }
+    #to8;
     get to8() {
-        return __classPrivateFieldGet(this, _to8);
+        return this.#to8;
     }
     set to8(val) {
-        __classPrivateFieldSet(this, _to8, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to8 = val;
+        this.#debouncer();
     }
+    #to9;
     get to9() {
-        return __classPrivateFieldGet(this, _to9);
+        return this.#to9;
     }
     set to9(val) {
-        __classPrivateFieldSet(this, _to9, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#to9 = val;
+        this.#debouncer();
     }
+    #styleProp;
     get styleProp() {
-        return __classPrivateFieldGet(this, _styleProp);
+        return this.#styleProp;
     }
     set styleProp(val) {
-        __classPrivateFieldSet(this, _styleProp, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#styleProp = val;
+        this.#debouncer();
     }
+    #tag;
     get tag() {
-        return __classPrivateFieldGet(this, _tag);
+        return this.#tag;
     }
     set tag(val) {
-        __classPrivateFieldSet(this, _tag, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#tag = val;
+        this.#debouncer();
     }
+    #location;
     get location() {
-        return __classPrivateFieldGet(this, _location);
+        return this.#location;
     }
     set location(val) {
-        __classPrivateFieldSet(this, _location, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#location = val;
+        this.#debouncer();
     }
+    #proxy;
     get proxy() {
-        return __classPrivateFieldGet(this, _proxy);
+        return this.#proxy;
     }
     set proxy(val) {
-        __classPrivateFieldSet(this, _proxy, val);
-        __classPrivateFieldGet(this, _debouncer).call(this);
+        this.#proxy = val;
+        this.#debouncer();
+    }
+    #insert;
+    get insert() {
+        return this.#insert;
+    }
+    set insert(val) {
+        this.#insert = val;
+        this.#debouncer();
     }
 }
-_debouncer = new WeakMap(), _conn = new WeakMap(), _from1 = new WeakMap(), _from2 = new WeakMap(), _from3 = new WeakMap(), _from4 = new WeakMap(), _from5 = new WeakMap(), _from6 = new WeakMap(), _from7 = new WeakMap(), _from8 = new WeakMap(), _from9 = new WeakMap(), _to1 = new WeakMap(), _to2 = new WeakMap(), _to3 = new WeakMap(), _to4 = new WeakMap(), _to5 = new WeakMap(), _to6 = new WeakMap(), _to7 = new WeakMap(), _to8 = new WeakMap(), _to9 = new WeakMap(), _styleProp = new WeakMap(), _tag = new WeakMap(), _location = new WeakMap(), _proxy = new WeakMap();
 define(ProxyProps);

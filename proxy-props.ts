@@ -40,38 +40,43 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
         const veriKey = Symbol();
         this.#debouncer = debounce(() => {
             if(!this.#conn) return;
-            let next: HTMLElement | null = null;
-            switch(this.#location){
-                case "afterbegin":
-                    next = this.firstElementChild;
-                    break;
-                case "afterend":
-                    next = this.nextElementSibling;
-                    break;
-                case "beforebegin":
-                    next = this.previousElementSibling;
-                    break;
-                case "beforeend":
-                    next = this.lastElementChild;
-                    break;
+            if(this.#insert){
+                let next: HTMLElement | null = null;
+                switch(this.#location){
+                    case "afterbegin":
+                        next = this.firstElementChild;
+                        break;
+                    case "afterend":
+                        next = this.nextElementSibling;
+                        break;
+                    case "beforebegin":
+                        next = this.previousElementSibling;
+                        break;
+                    case "beforeend":
+                        next = this.lastElementChild;
+                        break;
+                }
+                if(next === null || next.localName !== this.#tag){
+                    if(next !== null && (<any>next)[veriKey]) next.remove();
+                    next = document.createElement(this.#tag);
+                    next = this.insertAdjacentElement(this.#location, next) as HTMLElement;
+                    (<any>next)[veriKey] = true;
+                }
+                if(this.#styleProp !== undefined){
+                    Object.assign(next!.style, this.#styleProp);
+                }
+                if(!this.#proxy) return;
+                for(let i = 1; i < 10; i++){
+                    const val = (<any>this)['from' + i];
+                    if(val === undefined) continue;
+                    const prop = (<any>this)['to' + i];
+                    if(prop === undefined) continue;
+                    (<any>next)[prop] = val;
+                }
+
             }
-            if(next === null || next.localName !== this.#tag){
-                if(next !== null && (<any>next)[veriKey]) next.remove();
-                next = document.createElement(this.#tag);
-                next = this.insertAdjacentElement(this.#location, next) as HTMLElement;
-                (<any>next)[veriKey] = true;
-            }
-            if(!this.#proxy) return;
-            for(let i = 1; i < 10; i++){
-                const val = (<any>this)['from' + i];
-                if(val === undefined) continue;
-                const prop = (<any>this)['to' + i];
-                if(prop === undefined) continue;
-                (<any>next)[prop] = val;
-            }
-            if(this.#styleProp !== undefined){
-                Object.assign(next!.style, this.#styleProp);
-            }
+
+
         }, 16);
     }
     static get is(){return 'proxy-props';}
@@ -124,7 +129,7 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
                 break;
             case insert:
             case proxy:
-                this.#proxy = nv !== 'null';
+                (<any>this)[n] = nv !== null;
                 break;
         }
     }
@@ -313,7 +318,7 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
         this.#debouncer();
     }
 
-    #location : InsertPosition = 'afterend'
+    #location : InsertPosition = 'afterend';
     get location(){
         return this.#location;
     }
@@ -331,6 +336,14 @@ export class ProxyProps extends XtallatX(hydrate(HTMLElement)){
         this.#debouncer();
     }
 
+    #insert = false;
+    get insert(){
+        return this.#insert;
+    }
+    set insert(val){
+        this.#insert = val;
+        this.#debouncer();
+    }
 
 
 }
