@@ -8,13 +8,24 @@ Use case II -- providing a physical presence for a proxy.  This can help with xt
 
 ## Syntax
 
+Use case I:
+
+```html
+<proxy-props -props care-of i-bid>
+<laissez-dom>
+    <template>
+        <i-bid></i-bid>
+    </template>
+</laissez-dom>
+```
+
 Use case II:
 
 ```html
 <be-sorted-impl upgrade=* if-wants-to-be="sorted"></be-sorted-impl>
 
 ...
-<proxy-props proxy=be-sorted-impl></proxy-props>
+<proxy-props proxy=be-sorted-impl -props></proxy-props>
 <ul be-sorted>
     <li>
         <span>Zorse</span>
