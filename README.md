@@ -24,7 +24,7 @@ Use case I:
 ...
 <laissez-dom>
     <template>
-        <proxy-props props="list" to=[-list] val=... init-val=...></proxy-props>
+        <proxy-props on-prop-change-of='["list"]' to=[-list] val=... init-val=...></proxy-props>
         <i-bid -list></i-bid>
     </template>
 </laissez-dom>
